@@ -14,7 +14,7 @@ Date: 08.01.2015
 WoWScout is an advanced real-time packet inspection and modification utility.
 
 You can use it for pentesting your WoW server applications by modifying outgoing
-packets, sending your own packets, modifying the behaviour of the WoW client
+packets, sending your own packets or altering the behaviour of your WoW client
 through modified incoming packets.
 
 WoWScout comes with a simple command line interface. All commands that you type
@@ -266,6 +266,7 @@ variables. Here is a list of the inbuilt variables:
   description:
     The position of the specified unit, identified by its UnitId
     (http://wowwiki.wikia.com/wiki/UnitId).
+    This is equivalent to writing {$unitx,$unity,$unitz}
   example:
     > echo My targets position is $targetp
     My targets position is {-8753.58,400.98,101.06}
