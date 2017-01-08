@@ -78,6 +78,14 @@ Here is an overview of the commands (the symbol [...] means optional).
     > whitelist name jump
     Whitelisting packets containing "jump"...
 
+    > whitelist name chat
+    [OUT] Packet: CMSG_MESSAGECHAT (0x95)
+       [1] PutUInt32: 1 (0x1)
+       [2] PutUInt32: 7 (0x7)
+       [3] PutString: Hello world!
+       01 00 00 00 07 00 00 00 48 65 6C 6C 6F 20 77 6F 72 6C 64 21 00
+    ===================================
+
   block [<opcode/name <packet>>/<all>/<none>]
   description:
     Prevents the packet from being sent. Instead, each time the packet would
@@ -239,7 +247,7 @@ Here is an overview of the commands (the symbol [...] means optional).
     My position is {-8701.43,402.32,110.62}
 
 ================================================================================
-4. In-built wildcard variables
+5. In-built wildcard variables
 --------------------------------------------------------------------------------
 As can be seen from the command overview, several commands accept wildcard
 variables. Here is a list of the inbuilt variables:
