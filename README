@@ -1,0 +1,303 @@
+================================================================================
+WoWScout v1.0 - ReadMe
+
+Author: tripleslash (https://github.com/tripleslash)
+Issue Tracker: https://github.com/tripleslash/wowscout
+
+Date: 08.01.2015
+================================================================================
+
+
+================================================================================
+1. What is WoWScout?
+--------------------------------------------------------------------------------
+WoWScout is an advanced real-time packet inspection and modification utility.
+
+You can use it for pentesting your WoW server applications by modifying outgoing
+packets, sending your own packets, modifying the behaviour of the WoW client
+through modified incoming packets.
+
+WoWScout comes with a simple command line interface. All commands that you type
+into the WoWScout shell are mirrored in the in-built WoW console (that is when
+you start WoW with the -console command line argument).
+
+================================================================================
+2. Which versions are supported?
+--------------------------------------------------------------------------------
+WoWScout currently supports 1.12.1, 2.4.3 and 3.3.5.
+
+================================================================================
+3. How do I get started?
+--------------------------------------------------------------------------------
+To get started, all you have to do is start up your WoW client and double click
+the loader executable. WoWScout will then attempt to attach to all open WoW
+windows.
+
+Alternatively you can add a shortcut to the loader executable and start a WoW
+instance for your favourite server like this:
+
+  loader -g "D:\Games\WoW 1.12.1\WoW.exe" -c "set realmlist logon.example.com"
+
+================================================================================
+4. Command overview
+--------------------------------------------------------------------------------
+WoWScout extends the WoW console with a set of custom console commands.
+Here is an overview of the commands (the symbol [...] means optional).
+
+  log [<incoming>/<outgoing>]
+  description:
+    Sets which types of packets should be logged. To filter for specific packets
+    you can use the blacklist/whitelist commands.
+  example:
+    > log outgoing
+    Outgoing packet logging enabled.
+
+  blacklist [<opcode/name <packet>>/<all>/<none>]
+  description:
+    Blacklists the specified packet. Whitelisted packets will pass the message
+    filter and appear on the console. Blacklisted packets won't show up on the
+    console.
+  example:
+    > blacklist all
+    Blacklisting all packets...
+    > blacklist 0xbb
+    Blacklisting packet MSG_MOVE_JUMP (0xBB)...
+    > blacklist name jump
+    Blacklisting packets containing "jump"...
+
+  whitelist [<opcode/name <packet>>/<all>/<none>]
+  description:
+    Whitelists the specified packet. Whitelisted packets will pass the message
+    filter and appear on the console. Blacklisted packets won't show up on the
+    console.
+  example:
+    > whitelist all
+    Whitelisting all packets...
+    > whitelist 0xbb
+    Whitelisting packet MSG_MOVE_JUMP (0xBB)...
+    > whitelist name jump
+    Whitelisting packets containing "jump"...
+
+  block [<opcode/name <packet>>/<all>/<none>]
+  description:
+    Prevents the packet from being sent. Instead, each time the packet would
+    have been sent, it is put into an internal packet queue. All the queued up
+    packets can be sent using the "send" command (without arguments).
+  example:
+    > block name jump
+    Blocking packets containing "jump"...
+
+  unblock [<opcode/name <packet>>/<all>/<none>]
+  description:
+    Removes the packet from the blocked packets list. Previously blocked packets
+    will not be sent by using this command.
+  example:
+    > unblock name jump
+    Unblocking packets containing "jump"...
+
+  send [<<opcode> <byte...>>/<queue> [<opcode> <byte...>]]
+  description:
+    Sends the specified packet or if no argument given, sends the contents of
+    the packet queue. The command "send queue <opcode> <byte...>" can be used
+    to place the given packet into the packet queue, instead of sending it.
+  example:
+    > makepkt 0x95
+    > put32 1
+    > put32 7
+    > puts Hi
+    > send
+    Sent 1 queued packets.
+
+    > send 0x95 01 00 00 00 07 00 00 00 48 69 00
+    Sending packet CMSG_MESSAGECHAT (0x95) to server...
+
+    > send queue 0x95 01 00 00 00 07 00 00 00 48 69 00
+    Enqueuing packet CMSG_MESSAGECHAT (0x95) to server...
+
+    > send
+    Sent 1 queued packets.
+
+  flush
+  description:
+    Clears the contents of the packet queue, without sending them.
+  example:
+    > flush
+    Clearing packet queue...
+
+  lookup [<opcode/name <packet>>]
+  description:
+    Looks up the name and opcode of the given packet.
+  example:
+    > lookup name chat
+    Search results for "chat"...
+       [1] CMSG_MESSAGECHAT (0x95)
+       [2] SMSG_MESSAGECHAT (0x96)
+       [3] SMSG_CHAT_WRONG_FACTION (0x219)
+       [4] CMSG_CHAT_IGNORED (0x225)
+       [5] SMSG_CHAT_NOT_IN_PARTY (0x299)
+       [6] SMSG_CHAT_PLAYER_NOT_FOUND (0x2A9)
+       [7] SMSG_CHAT_RESTRICTED (0x2FD)
+       [8] SMSG_CHAT_PLAYER_AMBIGUOUS (0x32D)
+       [9] CMSG_CHAT_FILTERED (0x331)
+       [10] SMSG_GM_MESSAGECHAT (0x3B3)
+       [11] SMSG_VOICE_CHAT_STATUS (0x3E3)
+    ===================================
+    > lookup 0x95
+    Looking up opcode 0x95...
+       CMSG_MESSAGECHAT (0x95)
+    ===================================
+
+  mod <opcode/name <packet>> <call index> <set>/<add>/<sub>/<mul>/<div>/<or>/
+    <and>/<xor>/<shl>/<shr> <variable> [<lifetime>]
+  description:
+    Adds a modification to the specified packet. The call index determines to
+    which Put-call the modification should be added. You can see the call
+    indices in the packet log. The variable field may be a value, a CVar or a
+    wildcard. The lifetime field specifies to how many packets the modification
+    should be applied to, before it is automatically removed.
+  example:
+    Modifying the MESSAGECHAT packets to say IMACOOLGUY on the next chat.
+    > mod name chat 3 set IMACOOLGUY 1
+    Adding modification...
+
+  makepkt <opcode>
+  description:
+    Begins a new packet to which content can be added by using the put-commands.
+  example:
+    > makepkt 0x95
+    > put32 1
+    > put32 7
+    > puts Hi
+    > send
+    Sent 1 queued packets.
+
+  put8 <value>
+  description:
+    Puts an 8 bit integer value into the packet. See "makepkt" or "send" for
+    more information.
+
+  put16 <value>
+  description:
+    Puts a 16 bit integer value into the packet. See "makepkt" or "send" for
+    more information.
+
+  put32 <value>
+  description:
+    Puts a 32 bit integer value into the packet. See "makepkt" or "send" for
+    more information.
+
+  put64 <value>
+  description:
+    Puts a 64 bit integer value into the packet. See "makepkt" or "send" for
+    more information.
+
+  putf <value>
+  description:
+    Puts a float value into the packet. See "makepkt" or "send" for more
+    information.
+
+  puts <value>
+  description:
+    Puts a zero terminated string into the packet. See "makepkt" or "send" for
+    more information.
+
+  putg <value>
+  description:
+    Puts a packed GUID value into the packet. See "makepkt" or "send" for
+    more information.
+
+  putp <value>
+  description:
+    Puts a float position vector into the packet. The command putp is equal to
+    3 subsequent putf calls with the individual vector components.
+    See "makepkt" or "send" for more information.
+
+  echo <message>
+  description:
+    Prints a formatted string. The string can contain variables, CVars and
+    wildcard symbols.
+  example:
+    > echo My name is $playern and my position is $playerp
+    My name is Nureya and my position is {-8701.43,402.32,100.62}
+
+  setv/addv/subv/mulv/divv/modv/orv/andv/xorv/shlv/shrv <value>
+  description:
+    These commands can be used to set and modify CVar variables.
+  example:
+    > setv my_variable 50
+    > subv my_variable 13
+    > echo 50 - 13 = $my_variable
+    50 - 13 = 37
+
+    > setv my_position $playerp
+    > echo My position is $my_position
+    My position is {-8701.43,402.32,100.62}
+
+    > setv my_position {$playerx,$playery,$playerz}
+    > addv my_position {0,0,10}
+    > echo My position is $my_position
+    My position is {-8701.43,402.32,110.62}
+
+================================================================================
+4. In-built wildcard variables
+--------------------------------------------------------------------------------
+As can be seen from the command overview, several commands accept wildcard
+variables. Here is a list of the inbuilt variables:
+
+  $unitg
+  description:
+    The GUID of the specified unit, identified by its UnitId
+    (http://wowwiki.wikia.com/wiki/UnitId).
+  example:
+    > makepkt 0x13d
+    > put64 $targetg
+    > send
+    Sent 1 queued packets.
+
+  $unitp
+  description:
+    The position of the specified unit, identified by its UnitId
+    (http://wowwiki.wikia.com/wiki/UnitId).
+  example:
+    > echo My targets position is $targetp
+    My targets position is {-8753.58,400.98,101.06}
+
+  $unitx
+  description:
+    The x-position of the specified unit, identified by its UnitId
+    (http://wowwiki.wikia.com/wiki/UnitId).
+  example:
+    > echo My targets x-position is $targetx
+    My targets x-position is -8753.580078
+
+  $unity
+  description:
+    The y-position of the specified unit, identified by its UnitId
+    (http://wowwiki.wikia.com/wiki/UnitId).
+  example:
+    > echo My targets y-position is $targety
+    My targets y-position is 400.979004
+
+  $unitz
+  description:
+    The z-position of the specified unit, identified by its UnitId
+    (http://wowwiki.wikia.com/wiki/UnitId).
+  example:
+    > echo My targets z-position is $targetz
+    My targets z-position is 101.056000
+
+  $unitn
+  description:
+    The name of the specified unit, identified by its UnitId
+    (http://wowwiki.wikia.com/wiki/UnitId).
+  example:
+    > echo My targets name is $targetn
+    My targets name is Lieutenant Karter
+
+  $timestamp
+  description:
+    The current timestamp, used in WoW's movement packets.
+    The timestamp is retrieved by a call to OsGetAsyncTimeMs.
+  example:
+    > echo Current timestamp $timestamp
+    Current timestamp 1809813967

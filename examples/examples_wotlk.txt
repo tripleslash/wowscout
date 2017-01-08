@@ -1,0 +1,48 @@
+echo My name is $playern and my position is $playerp
+setv my_variable 50
+subv my_variable 13
+echo 50 - 13 = $my_variable
+
+echo Whisper message to ourself (language = LANG_COMMON, so you need to be a human)
+makepkt 0x95
+put32 7
+put32 7
+puts $playern
+puts Whisper message from myself.
+send
+
+echo Teleporting us to GM Island with a MSG_MOVE_HEARTBEAT
+setv gmislandp {16222,16262,13}
+makepkt 0xee
+putg $playerg
+put32 0
+put16 0
+put32 $timestamp
+putp $gmislandp
+putf 0
+putf 0
+send
+
+echo Sending a jump forward packet (moveflags 0x1001)
+makepkt 0xbb
+putg $playerg
+put32 0x1001
+put16 0
+put32 $timestamp
+putp $playerp
+putf 0
+put32 0
+putf -7.96
+putf 1
+putf 0
+putf 7
+send
+
+echo Enabling packet logging for "chat" packets
+blacklist all
+whitelist name chat
+log outgoing
+
+echo Modifying your say messages to always say IMACOOLGUY
+mod name chat 3 set IMACOOLGUY
+
