@@ -103,7 +103,7 @@ Here is an overview of the commands (the symbol [...] means optional).
     > unblock name jump
     Unblocking packets containing "jump"...
 
-  send [<<opcode> <byte...>>/<queue> [<opcode> <byte...>]]
+  send [<<opcode> <byte...>>/<queue>/<count <times>> [<opcode> <byte...>]]
   description:
     Sends the specified packet or if no argument given, sends the contents of
     the packet queue. The command "send queue <opcode> <byte...>" can be used
