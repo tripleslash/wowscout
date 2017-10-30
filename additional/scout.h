@@ -2,7 +2,7 @@
  * @file    scout.h
  * @author  tripleslash (development.slash@gmail.com)
  * @date    24 Nov 2016
- * @version 1.00
+ * @version 1.10
  *
  * Packet inspection library for World of Warcraft.
  */
@@ -17,7 +17,7 @@
  *
  * @see     scoutGetVersion
  */
-#define SCOUT_VERSION                  100
+#define SCOUT_VERSION                  110
 
 #if defined(_MSC_VER)
     #define SCOUT_DECL(...)            __declspec(__VA_ARGS__)
@@ -150,6 +150,20 @@ typedef struct ScoutLogEntryQuery {
     char*           mBuffer;                    ///< A pointer to a buffer that receives the contents of the log.
     int             mMaxLength;                 ///< The maximum length of the buffer (including the null terminator).
 } ScoutLogEntryQuery;
+
+/**
+ * @brief   The structure that should be passed to \ref scoutQueryLuaVariableEx.
+ * @remarks Don't forget to set \ref mSizeOfStruct.
+ * @see     scoutQueryLuaVariable
+ * @see     scoutQueryLuaVariableEx
+ */
+typedef struct ScoutLuaQuery {
+    int             mSizeOfStruct;              ///< The size of the structure (in bytes).
+    const char*     mVariable;                  ///< The name of the lua variable to read.
+    int             mIndex;                     ///< The index of the lua variable. For global variables this should be -1.
+    char*           mBuffer;                    ///< A pointer to a buffer that receives the contents of the lua variable (as string).
+    int             mMaxLength;                 ///< The maximum length of the buffer (including the null terminator).
+} ScoutLuaQuery;
 
 /**
  * @brief   A context is the equivalent to a class in this lib.
@@ -387,6 +401,41 @@ SCOUT_API int SCOUT_CALL scoutFetchLogEntriesEx(ScoutLogEntryQuery* query);
  *          To get extended error information, call \ref scoutGetLastError.
  */
 SCOUT_API ScoutBool SCOUT_CALL scoutExecuteCommand(const char* command);
+
+/**
+ * @brief   Executes the given lua code in the current process context.
+ *
+ * @param   luaCode         The lua code string to execute.
+ * @retval  eJumperTrue     The function succeeded.
+ * @retval  eJumperFalse    The function failed.
+ * @remarks To get extended error information, call \ref scoutGetLastError.
+ */
+SCOUT_API ScoutBool SCOUT_CALL scoutExecuteLua(const char* luaCode);
+
+/**
+ * @brief   Reads a lua variable in the current process context.
+ *
+ * @param   variable        The name of the lua variable to read.
+ * @param   index           The index of the lua variable. For global variables this should be -1.
+ * @param   buffer          A buffer that receives the content of the lua variable as string.
+ * @param   maxLength       The length of the buffer, including the null terminator.
+ * @return  The actual length of the buffer, not including the null terminator. On error, -1 is returned.
+ * @remarks To get extended error information, call \ref scoutGetLastError.
+ * @see     scoutQueryLuaVariableEx
+ */
+SCOUT_API int SCOUT_CALL scoutQueryLuaVariable(const char* variable, int index, char* buffer, int maxLength);
+
+/**
+ * @brief   Reads a lua variable in the current process context.
+ *
+ * This function allows specifying extended parameters through \c query.
+ *
+ * @param   query           See \ref ScoutLuaQuery.
+ * @return  The actual length of the buffer, not including the null terminator. On error, -1 is returned.
+ * @remarks To get extended error information, call \ref scoutGetLastError.
+ * @see     scoutQueryLuaVariable
+ */
+SCOUT_API int SCOUT_CALL scoutQueryLuaVariableEx(ScoutLuaQuery* query);
 
 #ifdef __cplusplus
 }
