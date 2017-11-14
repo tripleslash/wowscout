@@ -1,5 +1,5 @@
 ================================================================================
-WoWScout v1.0 - ReadMe
+WoWScout v1.1 - ReadMe
 
 Author: tripleslash (https://github.com/tripleslash)
 Issue Tracker: https://github.com/tripleslash/wowscout
@@ -24,7 +24,7 @@ you start WoW with the -console command line argument).
 ================================================================================
 2. Which versions are supported?
 --------------------------------------------------------------------------------
-WoWScout currently supports 1.12.1, 2.4.3 and 3.3.5.
+WoWScout currently supports 1.12.1, 2.4.3, 3.3.5 and 4.3.4.
 
 ================================================================================
 3. How do I get started?
